@@ -27,6 +27,7 @@ precision mediump int;
 #define NONE 0
 #define CHECKERBOARD 1
 #define MYSPECIAL 2
+#define FBM 3
 
 // define material types
 #define BASICMATERIAL 1
@@ -475,6 +476,45 @@ float findIntersectionWithCone(Ray ray, vec3 center, vec3 apex, float radius,
   return best_dist;
 }
 
+float hash(vec2 p) {vec3 p3 = fract(vec3(p.xyx) * 0.13); p3 += dot(p3, p3.yzx + 3.333); return fract((p3.x + p3.y) * p3.z); }
+
+
+float noise(vec2 x) {
+    vec2 i = floor(x);
+    vec2 f = fract(x);
+
+	// Four corners in 2D of a tile
+	float a = hash(i);
+    float b = hash(i + vec2(1.0, 0.0));
+    float c = hash(i + vec2(0.0, 1.0));
+    float d = hash(i + vec2(1.0, 1.0));
+
+    // Simple 2D lerp using smoothstep envelope between the values.
+	// return vec3(mix(mix(a, b, smoothstep(0.0, 1.0, f.x)),
+	//			mix(c, d, smoothstep(0.0, 1.0, f.x)),
+	//			smoothstep(0.0, 1.0, f.y)));
+
+	// Same code, with the clamps in smoothstep and common subexpressions
+	// optimized away.
+    vec2 u = f * f * (3.0 - 2.0 * f);
+	return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
+}
+
+
+float fbm(vec2 x) {
+	float v = 0.0;
+	float a = 0.5;
+	vec2 shift = vec2(100);
+	// Rotate to reduce axial bias
+    mat2 rot = mat2(cos(0.5), sin(0.5), -sin(0.5), cos(0.50));
+	for (int i = 0; i < 5; ++i) {
+		v += a * noise(x);
+		x = rot * x * 2.0 + shift;
+		a *= 0.5;
+	}
+	return v;
+}
+
 vec3 calculateSpecialDiffuseColor(Material mat, vec3 posIntersection,
                                   vec3 normalVector) {
   // ----------- STUDENT CODE BEGIN ------------
@@ -492,6 +532,38 @@ vec3 calculateSpecialDiffuseColor(Material mat, vec3 posIntersection,
     else return mat.color; //white square
 
   } else if (mat.special == MYSPECIAL) {
+
+    float x = posIntersection[0] +EPS;
+    float z = posIntersection[1] +EPS;
+
+    vec2 st = vec2(x, z);
+
+    vec2 q = vec2(0);
+    q.x = fbm(st);
+    q.y = fbm(st+vec2(1));
+
+    vec2 r = vec2(0);
+    r.x = fbm(st + q);
+    r.y = fbm(st + 1.5*q +vec2(1));
+
+    float v = fbm(st+r);
+
+    vec3 color = vec3(0);
+    
+    color = mix(vec3(0.101961,0.619608,0.666667),
+                vec3(0.666667,0.666667,0.498039),
+                clamp((v*v)*4.0,0.0,1.0));
+
+    color = mix(color,
+                vec3(0,0,0.164706),
+                clamp(length(q),0.0,1.0));
+
+    color = mix(color,
+                vec3(0.666667,1,1),
+                clamp(length(r.x),0.0,1.0));
+
+
+    return color;
     // ----------- Our reference solution uses 5 lines of code.
   }
 
