@@ -15,7 +15,8 @@ window.onload = function() {
   Student.updateHTML();
 
   var drawScene = function() {
-    if (!animated || !paused) Raytracer.render(animated);
+    //if (!animated || !paused) 
+    Raytracer.render(true);
 
     requestAnimationFrame(drawScene);
   };

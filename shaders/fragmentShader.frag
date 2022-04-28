@@ -541,15 +541,17 @@ vec3 calculateSpecialDiffuseColor(Material mat, vec3 posIntersection,
     float x = posIntersection[0] +EPS;
     float z = posIntersection[1] +EPS;
 
+    float time = float(frame) / 60.0;
+
     vec2 st = vec2(x, z);
 
     vec2 q = vec2(0);
-    q.x = fbm(st + u_time);
+    q.x = fbm(st + time);
     q.y = fbm(st+vec2(1));
 
     vec2 r = vec2(0);
-    r.x = fbm(st + q + +vec2(1.7,9.2) + u_time);
-    r.y = fbm(st + 1.5*q + vec2(8.3,2.8));
+    r.x = fbm(st + q + +vec2(1.7,9.2) + 0.15 *time);
+    r.y = fbm(st + 1.5*q + vec2(8.3,2.8) + 0.126 * time);
 
     float v = fbm(st+r);
 
