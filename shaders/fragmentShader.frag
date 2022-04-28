@@ -1,10 +1,12 @@
 // set the precision of the float values (necessary if using float)
-#ifdef GL_FRAGMENT_PRECISION_HIGH
-precision highp float;
-#else
+//#ifdef GL_FRAGMENT_PRECISION_HIGH
+//precision highp float;
+//#else
 precision mediump float;
-#endif
+//#endif
 precision mediump int;
+uniform float u_time;       // Time in seconds since load
+uniform vec2 u_resolution;
 
 // flag for using soft shadows (set to 1 only when using soft shadows)
 #define SOFT_SHADOWS 0
@@ -476,6 +478,9 @@ float findIntersectionWithCone(Ray ray, vec3 center, vec3 apex, float radius,
   return best_dist;
 }
 
+
+
+
 float hash(vec2 p) {vec3 p3 = fract(vec3(p.xyx) * 0.13); p3 += dot(p3, p3.yzx + 3.333); return fract((p3.x + p3.y) * p3.z); }
 
 
@@ -539,17 +544,17 @@ vec3 calculateSpecialDiffuseColor(Material mat, vec3 posIntersection,
     vec2 st = vec2(x, z);
 
     vec2 q = vec2(0);
-    q.x = fbm(st);
+    q.x = fbm(st + u_time);
     q.y = fbm(st+vec2(1));
 
     vec2 r = vec2(0);
-    r.x = fbm(st + q);
-    r.y = fbm(st + 1.5*q +vec2(1));
+    r.x = fbm(st + q + +vec2(1.7,9.2) + u_time);
+    r.y = fbm(st + 1.5*q + vec2(8.3,2.8));
 
     float v = fbm(st+r);
 
     vec3 color = vec3(0);
-    
+
     color = mix(vec3(0.101961,0.619608,0.666667),
                 vec3(0.666667,0.666667,0.498039),
                 clamp((v*v)*4.0,0.0,1.0));
@@ -563,7 +568,7 @@ vec3 calculateSpecialDiffuseColor(Material mat, vec3 posIntersection,
                 clamp(length(r.x),0.0,1.0));
 
 
-    return color;
+    return (v*v*v+.6*v*v+.5*v)*color;
     // ----------- Our reference solution uses 5 lines of code.
   }
 
@@ -869,5 +874,7 @@ void main() {
   vec3 res = traceRay(ray);
 
   // paint the resulting color into this pixel
+  //vec2 st = gl_FragCoord.xy;
+	//gl_FragColor = vec4(st.x,st.y,0.0,1.0);
   gl_FragColor = vec4(res.x, res.y, res.z, 1.0);
 }
