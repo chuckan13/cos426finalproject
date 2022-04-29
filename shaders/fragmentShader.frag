@@ -8,6 +8,12 @@ precision mediump int;
 uniform float u_time;       // Time in seconds since load
 uniform vec2 u_resolution;
 
+
+uniform vec3 color1;
+uniform vec3 color2;
+uniform vec3 color3;
+uniform vec3 color4;
+
 // flag for using soft shadows (set to 1 only when using soft shadows)
 #define SOFT_SHADOWS 0
 
@@ -557,16 +563,16 @@ vec3 calculateSpecialDiffuseColor(Material mat, vec3 posIntersection,
 
     vec3 color = vec3(0);
 
-    color = mix(vec3(0.101961,0.619608,0.666667),
-                vec3(0.666667,0.666667,0.498039),
+    color = mix(vec3(color1),
+                vec3(color2),
                 clamp((v*v)*4.0,0.0,1.0));
 
     color = mix(color,
-                vec3(0,0,0.164706),
+                vec3(color3),
                 clamp(length(q),0.0,1.0));
 
     color = mix(color,
-                vec3(0.666667,1,1),
+                vec3(color4),
                 clamp(length(r.x),0.0,1.0));
 
 

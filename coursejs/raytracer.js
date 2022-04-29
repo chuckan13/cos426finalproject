@@ -186,6 +186,12 @@ Raytracer.setUniform = function(varType, varName, v0, v1, v2) {
   this.gl[unifName](this.gl.getUniformLocation(this.program, varName), v0, v1, v2);
 };
 
+Raytracer.updateColor = function(colorNum, colorVal){
+  this.setUniform("3fv", colorNum, colorVal)
+  console.log(colorVal)
+  Raytracer.needsToDraw = true;
+}
+
 Raytracer.render = function(animated) {
   this.frame++;
   if (animated) {

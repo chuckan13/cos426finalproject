@@ -1,3 +1,82 @@
+// this construction helps avoid polluting the global name space
+var Main = Main || {
+  // internal stuff
+  ageStack: [],
+  batchMode: false,
+
+  // how much to offset display of each image on stack:
+  imageStackDisplayOffset: 100,
+
+  // print out debug info, namely filter processing time
+  debugPrint: true,
+
+  // time in ms after which to pause filter application to update display
+  // (can only pause between filters)
+  applyRefreshTime: 1000,
+
+  // time in ms before "working..." popup is displayed
+  workingDialogDelay: 500,
+
+};
+
+function Pixel( comp0, comp1, comp2, a, colorSpace ) {
+  if (typeof comp0 === "string") {
+    this.colorSpace = "rgb";
+
+    if (comp0.match(/rgb/g)) {
+      // rgba string
+      this.data = comp0.match(/-?\d+\.?\d*/g);
+      for (var i = 0; i <= 2; i++) {
+        this.data[i] = parseFloat(this.data[i] / 255);
+      }
+      this.a = (this.data[3] && parseFloat(this.data[3]) / 255) || 1;
+      this.data[3] = undefined;
+    }
+    else {
+      // hex string
+      var bigint = parseInt( comp0.substring(1), 16 );
+      this.data = [
+        (( bigint >> 16 ) & 255) / 255,
+        (( bigint >> 8  ) & 255) / 255,
+        (( bigint       ) & 255) / 255,
+      ];
+      this.a = 1;
+    }
+  }
+  else {
+    if (a === undefined) {
+      a = 1;
+    }
+    this.data = [
+      comp0,
+      comp1,
+      comp2,
+    ];
+    this.a = a;
+    this.colorSpace = colorSpace || "rgb";
+  }
+}
+
+
+var colors = {
+  color1: '#FFFFFF',
+  color2: '#FFFFFF',
+  color3: '#FFFFFF',
+  color4: '#FFFFFF'
+ }
+
+
+// called when the gui params change and we need to update the image
+Main.controlsChangeCallback = function() {
+  //Main.filterHistoryData = Gui.getFilterHistoryData();
+  Raytracer.updateColor("color1", (new Pixel(colors.color1).data));
+  Raytracer.updateColor("color2", (new Pixel(colors.color2).data));
+  Raytracer.updateColor("color3", (new Pixel(colors.color3).data));
+  Raytracer.updateColor("color4", (new Pixel(colors.color4).data));
+  //Main.totalApplyTimeSinceFirstFilter = 0;
+  //Main.applyFilters();
+};
+
 window.onload = function() {
   var cmd = Parser.getCommands(document.URL)[0];
 
@@ -22,6 +101,11 @@ window.onload = function() {
   };
 
   drawScene();
+
+  Raytracer.updateColor("color1", (new Pixel(colors.color1).data));
+  Raytracer.updateColor("color2", (new Pixel(colors.color2).data));
+  Raytracer.updateColor("color3", (new Pixel(colors.color3).data));
+  Raytracer.updateColor("color4", (new Pixel(colors.color4).data));
 
   function snapShot() {
     // get the image data
@@ -54,4 +138,6 @@ window.onload = function() {
       Raytracer.handleZoom(-1.0);
     }
   });
+
+  Gui.init(Main.controlsChangeCallback);
 };
