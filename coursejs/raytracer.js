@@ -24,7 +24,6 @@ Raytracer.curMaterial = {};
 // for animation
 Raytracer.frame = 0;
 Raytracer.needsToDraw = true;
-
 Raytracer.mouseDown = false;
 Raytracer.lastMouseX = null;
 Raytracer.lastMouseY = null;
@@ -41,8 +40,11 @@ Raytracer.handleMouseUp = function(event) {
   Raytracer.mouseDown = false;
 };
 
-Raytracer.handleZoom = function(delta) {
-  mat4.translate(Raytracer.RotationMatrix, [0.0, 0.0, 0.5 * delta]);
+Raytracer.handleZoom = function(delta, magVal) {
+  var magVal_ = [magVal, 0.0]
+  console.log(magVal_)
+  //mat4.translate(Raytracer.RotationMatrix, [0.0, 0.0, 0.5 * delta]);
+  this.setUniform("2fv", 'magnify', magVal_)
   Raytracer.needsToDraw = true;
 };
 
@@ -189,12 +191,12 @@ Raytracer.setUniform = function(varType, varName, v0, v1, v2) {
 
 Raytracer.updateColor = function(colorNum, colorVal){
   this.setUniform("3fv", colorNum, colorVal)
-  console.log(colorVal)
   Raytracer.needsToDraw = true;
 }
 
 Raytracer.render = function(animated) {
   this.frame++;
+
   if (animated) {
     this.setUniform("1i", "frame", this.frame);
   }

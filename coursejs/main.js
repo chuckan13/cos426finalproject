@@ -60,19 +60,19 @@ function Pixel( comp0, comp1, comp2, a, colorSpace ) {
 
 var colors = {
   color1: '#FFFFFF',
-  color2: '#FFFFFF',
-  color3: '#FFFFFF',
-  color4: '#FFFFFF'
+  color2: '#366be8',
+  color3: '#001a93',
+  color4: '#4b97ae'
  }
 
 
 // called when the gui params change and we need to update the image
 Main.controlsChangeCallback = function() {
   //Main.filterHistoryData = Gui.getFilterHistoryData();
-  Raytracer.updateColor("color1", (new Pixel(colors.color1).data));
-  Raytracer.updateColor("color2", (new Pixel(colors.color2).data));
-  Raytracer.updateColor("color3", (new Pixel(colors.color3).data));
-  Raytracer.updateColor("color4", (new Pixel(colors.color4).data));
+  Raytracer.updateColor("water_color1", (new Pixel(colors.color1).data));
+  Raytracer.updateColor("water_color2", (new Pixel(colors.color2).data));
+  Raytracer.updateColor("water_color3", (new Pixel(colors.color3).data));
+  Raytracer.updateColor("water_color4", (new Pixel(colors.color4).data));
   //Main.totalApplyTimeSinceFirstFilter = 0;
   //Main.applyFilters();
 };
@@ -102,10 +102,10 @@ window.onload = function() {
 
   drawScene();
 
-  Raytracer.updateColor("color1", (new Pixel(colors.color1).data));
-  Raytracer.updateColor("color2", (new Pixel(colors.color2).data));
-  Raytracer.updateColor("color3", (new Pixel(colors.color3).data));
-  Raytracer.updateColor("color4", (new Pixel(colors.color4).data));
+  Raytracer.updateColor("water_color1", (new Pixel(colors.color1).data));
+  Raytracer.updateColor("water_color2", (new Pixel(colors.color2).data));
+  Raytracer.updateColor("water_color3", (new Pixel(colors.color3).data));
+  Raytracer.updateColor("water_color4", (new Pixel(colors.color4).data));
 
   function snapShot() {
     // get the image data
@@ -121,6 +121,7 @@ window.onload = function() {
     window.open(url);
   }
 
+
   // add event listener that will cause 'I' key to download image
   window.addEventListener("keyup", function(event) {
     // only respond to 'I' key
@@ -130,12 +131,17 @@ window.onload = function() {
       paused = !paused;
     }
   });
+
+  var magVal = 100;
   window.addEventListener("keydown", function(event) {
     // only respond to 'I' key
     if (event.which == 38) {
-      Raytracer.handleZoom(1.0);
+      magVal += 1;
+      Raytracer.handleZoom(1.0, magVal);
+      
     } else if (event.which == 40) {
-      Raytracer.handleZoom(-1.0);
+      magVal -= 1;
+      Raytracer.handleZoom(-1.0, magVal);
     }
   });
 

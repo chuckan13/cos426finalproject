@@ -9,11 +9,12 @@ uniform float u_time;       // Time in seconds since load
 uniform vec2 u_resolution;
 
 
-uniform vec3 color1;
-uniform vec3 color2;
-uniform vec3 color3;
-uniform vec3 color4;
+uniform vec3 water_color1;
+uniform vec3 water_color2;
+uniform vec3 water_color3;
+uniform vec3 water_color4;
 
+uniform vec2 magnify;
 // flag for using soft shadows (set to 1 only when using soft shadows)
 #define SOFT_SHADOWS 0
 
@@ -544,105 +545,7 @@ vec3 calculateSpecialDiffuseColor(Material mat, vec3 posIntersection,
     else return mat.color; //white square
 
   } else if (mat.special == MYSPECIAL) {
-    float x = posIntersection[0] +EPS;
-    float z = posIntersection[1] +EPS;
-
-    float time = float(frame) / 60.0;
-
-    vec2 st = vec2(x, z);
-
-    vec2 q = vec2(0);
-    q.x = fbm(st + 1.464*time); // change constant in front of time for waves
-    q.y = fbm(st+vec2(1.0));
-
-    vec2 r = vec2(0);
-    r.x = fbm(st + 1.0*q + vec2(1.7,9.2) + 0.15 *time);
-    r.y = fbm(st + 1.0*q + vec2(8.3,2.8) + 0.126 * time);
-
-    float v = fbm(st+7.0*r);
-
-    vec3 color = vec3(0);
-
-    color = mix(vec3(color1),
-                vec3(color2),
-                clamp((v*v)*4.0,0.0,1.0));
-
-    color = mix(color,
-                vec3(color3),
-                clamp(length(q),0.0,1.0));
-
-    color = mix(color,
-                vec3(color4),
-                clamp(length(r.x),0.0,1.0));
-
-
-    return (v*v*v+.6*v*v+.5*v)*color;
-    // ----------- Our reference solution uses 5 lines of code.
-  } else if (mat.special == MYSPECIALCOAST) {
-      float x = posIntersection[0] +EPS;
-      float z = posIntersection[1] +EPS;
-
-      float time = float(frame) / 60.0;
-
-      vec2 st = vec2(x, z);
-
-       vec2 q = vec2(0.);
-    q.x = fbm( st + vec2(0.0,0.0) );
-    q.y = fbm( st + vec2(5.2,1.3) );
-
-    vec2 r = vec2(0.);
-    r.x = fbm( st + 4.0*q + vec2(1.7,9.2) );
-    r.y = fbm( st + 4.0*q + vec2(8.3,2.8) );
-    
-    vec2 r1 = vec2(0.);
-    r1.x = fbm( st + 10.0*r + vec2(1.7,9.2) + 0.0015 *time);
-    r1.y = fbm( st + 15.0*r + vec2(8.3,2.8) + 0.015 *time);
-    
-    vec2 r2 = vec2(0.);
-    r2.x = fbm( st + 20.0*r1 + vec2(1.7,9.2) + 0.15 *time);
-    r2.y = fbm( st + 25.0*r1 + vec2(8.3,2.8) + 0.15 *time);
-
-
-
-
-      float v = fbm(st+4.0*r2);
-
-      vec3 color = vec3(0);
-      color = mix(vec3(0.792,0.800,0.242),
-                vec3(0.935,0.832,0.472),
-                clamp((v*v)*4.0,0.0,1.0));
-
-    color = mix(color,
-                vec3(0.935,0.960,0.741),
-                clamp(length(q),0.0,1.0));
-
-    color = mix(color,
-                vec3(194/255, 178/255, 128/255),
-                clamp(length(r2.x),0.0,1.0));
-
-      // color = mix(vec3(color1),
-      //             vec3(color2),
-      //             clamp((v*v)*4.0,0.0,1.0));
-
-      // color = mix(color,
-      //             vec3(color3),
-      //             clamp(length(q),0.0,1.0));
-      
-      // color = mix(color,
-      //             vec3(color3),
-      //             clamp(length(r),0.0,1.0));
-      
-      // color = mix(color,
-      //             vec3(color3),
-      //             clamp(length(r1),0.0,1.0));
-
-      // color = mix(color,
-      //             vec3(color4),
-      //             clamp(length(r2.x),0.0,1.0));
-
-
-      return (v*v*v+.6*v*v+.5*v)*color;
-    
+    return mat.color;
   }
 
   // If not a special material, just return material color.
@@ -936,22 +839,125 @@ vec3 traceRay(Ray ray) {
 
 uniform vec2 mouse;
 
-void main() {
-  float cameraFOV = 0.8;
-  vec3 direction = vec3(v_position.x * cameraFOV * width / height,
-                        v_position.y * cameraFOV, 1.0);
+vec3 getSandColor(float x, float z){
+    x /= 20.0;
+    z /= 20.0;
+    float time = float(frame) / 60.0;
 
-  Ray ray;
-  ray.origin = vec3(uMVMatrix * vec4(camera, 1.0));
-  ray.direction = normalize(vec3(uMVMatrix * vec4(direction, 0.0)));
+    vec2 st = vec2(x, z);
+
+    vec2 q = vec2(0.);
+    q.x = fbm( st + vec2(0.0,0.0) );
+    q.y = fbm( st + vec2(5.2,1.3) );
+
+    vec2 r = vec2(0.);
+    r.x = fbm( st + 4.0*q + vec2(1.7,9.2) );
+    r.y = fbm( st + 4.0*q + vec2(8.3,2.8) );
+    
+    vec2 r1 = vec2(0.);
+    r1.x = fbm( st + 10.0*r + vec2(1.7,9.2) + 0.0015 *time);
+    r1.y = fbm( st + 15.0*r + vec2(8.3,2.8) + 0.015 *time);
+    
+    //r1.x = fbm( st + 10.0*r + vec2(1.7,9.2));
+    //r1.y = fbm( st + 15.0*r + vec2(8.3,2.8));
+
+    vec2 r2 = vec2(0.);
+    r2.x = fbm( st + 20.0*r1 + vec2(1.7,9.2) + 0.15 *time);
+    r2.y = fbm( st + 25.0*r1 + vec2(8.3,2.8) + 0.15 *time);
+    //r2.x = fbm( st + 20.0*r1 + vec2(1.7,9.2) );
+    //r2.y = fbm( st + 25.0*r1 + vec2(8.3,2.8) );
+
+
+
+
+    float v = fbm(st+4.0*r2);
+
+    vec3 color = vec3(0);
+    color = mix(vec3(0.792,0.800,0.242),
+                vec3(0.935,0.832,0.472),
+                clamp((v*v)*4.0,0.0,1.0));
+
+    color = mix(color,
+                vec3(0.935,0.960,0.741),
+                clamp(length(q),0.0,1.0));
+
+    color = mix(color,
+                vec3(194/255, 178/255, 128/255),
+                clamp(length(r2.x),0.0,1.0));
+
+    return (v*v*v+.6*v*v+.5*v)*color;
+
+}     
+vec3 getWaterColor(float x, float z){
+    x /= 20.0;
+    z /= 20.0;
+
+    float time = float(frame) / 60.0;
+
+    vec2 st = vec2(x, z);
+
+    vec2 q = vec2(0);
+    q.x = fbm(st + 1.464*time); // change constant in front of time for waves
+    q.y = fbm(st+vec2(1.0));
+
+    vec2 r = vec2(0);
+    r.x = fbm(st + 1.0*q + vec2(1.7,9.2) + 0.15 *time);
+    r.y = fbm(st + 1.0*q + vec2(8.3,2.8) + 0.126 * time);
+
+    float v = fbm(st+7.0*r);
+
+    vec3 color = vec3(0);
+
+    color = mix(vec3(water_color1),
+                vec3(water_color2),
+                clamp((v*v)*3.0,0.0,1.0));
+
+    color = mix(color,
+                vec3(water_color3),
+                clamp(length(q),0.0,1.0));
+    
+    color = mix(color,
+                vec3(water_color4),
+                clamp(length(r.x),0.0,1.0));
+
+    return (v*v*v+.6*v*v+.5*v)*color;
+
+}
+
+void main() {
+  //float cameraFOV = 0.8;
+  //vec3 direction = vec3(v_position.x * cameraFOV * width / height, v_position.y * cameraFOV, 1.0);
+
+  //Ray ray;
+  //ray.origin = vec3(uMVMatrix * vec4(camera, 1.0));
+  //ray.direction = normalize(vec3(uMVMatrix * vec4(direction, 0.0)));
 
   // trace the ray for this pixel
-  vec3 res = traceRay(ray);
-
-  // paint the resulting color into this pixel
-  //vec2 st = gl_FragCoord.xy;
-	//gl_FragColor = vec4(st.x,st.y,0.0,1.0);
-  gl_FragColor = vec4(res.x, res.y, res.z, 1.0);
+  //vec3 res = traceRay(ray);
 
   
+  float x = gl_FragCoord.x;
+  float z =  gl_FragCoord.y;
+
+  if (x < 300.0){
+      vec3 sand_color = getSandColor(x, z);
+
+      gl_FragColor = vec4(sand_color, .1);
+  }
+  else if (x > 350.0){
+    vec3 water_color = getWaterColor(x,z);
+
+    gl_FragColor = vec4(water_color, .1);
+  }
+  else{
+    float weight = (x - 300.0) / 50.0;
+    
+    vec3 sand_color = getSandColor(x, z);
+    vec3 water_color = getWaterColor(x,z);
+
+    vec3 mix_color = vec3(0);
+    mix_color = mix(sand_color, water_color, weight);
+    gl_FragColor = vec4(mix_color, .1);
+
+  }
 }
