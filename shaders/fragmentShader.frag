@@ -14,6 +14,11 @@ uniform vec3 water_color2;
 uniform vec3 water_color3;
 uniform vec3 water_color4;
 
+uniform vec3 sand_color1;
+uniform vec3 sand_color2;
+uniform vec3 sand_color3;
+uniform vec3 sand_color4;
+
 uniform vec2 magnify;
 // flag for using soft shadows (set to 1 only when using soft shadows)
 #define SOFT_SHADOWS 0
@@ -486,48 +491,6 @@ float findIntersectionWithCone(Ray ray, vec3 center, vec3 apex, float radius,
   return best_dist;
 }
 
-
-
-
-float hash(vec2 p) {vec3 p3 = fract(vec3(p.xyx) * 0.13); p3 += dot(p3, p3.yzx + 3.333); return fract((p3.x + p3.y) * p3.z); }
-
-
-float noise(vec2 x) {
-    vec2 i = floor(x);
-    vec2 f = fract(x);
-
-	// Four corners in 2D of a tile
-	float a = hash(i);
-    float b = hash(i + vec2(1.0, 0.0));
-    float c = hash(i + vec2(0.0, 1.0));
-    float d = hash(i + vec2(1.0, 1.0));
-
-    // Simple 2D lerp using smoothstep envelope between the values.
-	// return vec3(mix(mix(a, b, smoothstep(0.0, 1.0, f.x)),
-	//			mix(c, d, smoothstep(0.0, 1.0, f.x)),
-	//			smoothstep(0.0, 1.0, f.y)));
-
-	// Same code, with the clamps in smoothstep and common subexpressions
-	// optimized away.
-    vec2 u = f * f * (3.0 - 2.0 * f);
-	return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
-}
-
-
-float fbm(vec2 x) {
-	float v = 0.0;
-	float a = 0.5;
-	vec2 shift = vec2(100);
-	// Rotate to reduce axial bias
-    mat2 rot = mat2(cos(0.5), sin(0.5), -sin(0.5), cos(0.50));
-	for (int i = 0; i < 5; ++i) {
-		v += a * noise(x);
-		x = rot * x * 2.0 + shift;
-		a *= 0.5;
-	}
-	return v;
-}
-
 vec3 calculateSpecialDiffuseColor(Material mat, vec3 posIntersection,
                                   vec3 normalVector) {
   // ----------- STUDENT CODE BEGIN ------------
@@ -839,9 +802,67 @@ vec3 traceRay(Ray ray) {
 
 uniform vec2 mouse;
 
+float hash(float p) { p = fract(p * 0.011); p *= p + 7.5; p *= p + p; return fract(p); }
+float hash(vec2 p) {vec3 p3 = fract(vec3(p.xyx) * 0.13); p3 += dot(p3, p3.yzx + 3.333); return fract((p3.x + p3.y) * p3.z); }
+
+float noise(float x) {
+    float i = floor(x);
+    float f = fract(x);
+    float u = f * f * (3.0 - 2.0 * f);
+    return mix(hash(i), hash(i + 1.0), u);
+}
+
+
+float noise(vec2 x) {
+    vec2 i = floor(x);
+    vec2 f = fract(x);
+
+	// Four corners in 2D of a tile
+	float a = hash(i);
+    float b = hash(i + vec2(1.0, 0.0));
+    float c = hash(i + vec2(0.0, 1.0));
+    float d = hash(i + vec2(1.0, 1.0));
+
+    // Simple 2D lerp using smoothstep envelope between the values.
+	// return vec3(mix(mix(a, b, smoothstep(0.0, 1.0, f.x)),
+	//			mix(c, d, smoothstep(0.0, 1.0, f.x)),
+	//			smoothstep(0.0, 1.0, f.y)));
+
+	// Same code, with the clamps in smoothstep and common subexpressions
+	// optimized away.
+    vec2 u = f * f * (3.0 - 2.0 * f);
+	return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
+}
+
+float fbm(float x) {
+	float v = 0.0;
+	float a = 0.5;
+	float shift = float(100);
+	for (int i = 0; i < 5; ++i) {
+		v += a * noise(x);
+		x = x * 2.0 + shift;
+		a *= 0.5;
+	}
+	return v;
+}
+
+float fbm(vec2 x) {
+	float v = 0.0;
+	float a = 0.5;
+	vec2 shift = vec2(100);
+	// Rotate to reduce axial bias
+    mat2 rot = mat2(cos(0.5), sin(0.5), -sin(0.5), cos(0.50));
+	for (int i = 0; i < 5; ++i) {
+		v += a * noise(x);
+		x = rot * x * 2.0 + shift;
+		a *= 0.5;
+	}
+	return v;
+}
+
 vec3 getSandColor(float x, float z){
-    x /= 20.0;
-    z /= 20.0;
+    x /= 10.0;
+    z /= 10.0;
     float time = float(frame) / 60.0;
 
     vec2 st = vec2(x, z);
@@ -873,19 +894,21 @@ vec3 getSandColor(float x, float z){
     float v = fbm(st+4.0*r2);
 
     vec3 color = vec3(0);
-    color = mix(vec3(0.792,0.800,0.242),
-                vec3(0.935,0.832,0.472),
-                clamp((v*v)*4.0,0.0,1.0));
-
-    color = mix(color,
-                vec3(0.935,0.960,0.741),
+    color = mix(sand_color1,
+                sand_color2,
                 clamp(length(q),0.0,1.0));
 
     color = mix(color,
-                vec3(194/255, 178/255, 128/255),
+                sand_color3,
+                clamp(length(r2.y),0.0,1.0));
+
+    color = mix(color,
+                sand_color4,
                 clamp(length(r2.x),0.0,1.0));
 
-    return (v*v*v+.6*v*v+.5*v)*color;
+    v+=.2;
+
+    return (v*v*v+.2*v*v+.95*v)*color;
 
 }     
 vec3 getWaterColor(float x, float z){
@@ -939,18 +962,23 @@ void main() {
   float x = gl_FragCoord.x;
   float z =  gl_FragCoord.y;
 
-  if (x < 300.0){
+  float coastNoise1 = 150.0 * fbm((z+200.0)/75.0);
+  float coastNoise2 = coastNoise1;
+  // 75.0 * fbm(z/40.0);
+
+  if (x < (300.0 + coastNoise1)){
       vec3 sand_color = getSandColor(x, z);
 
       gl_FragColor = vec4(sand_color, .1);
   }
-  else if (x > 350.0){
+  else  if (x > (350.0 + coastNoise2)){
     vec3 water_color = getWaterColor(x,z);
 
     gl_FragColor = vec4(water_color, .1);
   }
   else{
-    float weight = (x - 300.0) / 50.0;
+    float weight = (x - (300.0+coastNoise1)) / (50.0+coastNoise2 - coastNoise1);
+    //weight *=weight;
     
     vec3 sand_color = getSandColor(x, z);
     vec3 water_color = getWaterColor(x,z);

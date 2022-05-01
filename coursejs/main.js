@@ -58,21 +58,33 @@ function Pixel( comp0, comp1, comp2, a, colorSpace ) {
 }
 
 
-var colors = {
+var waterColors = {
   color1: '#FFFFFF',
   color2: '#366be8',
   color3: '#001a93',
   color4: '#4b97ae'
  }
 
+ var sandColors = {
+  color1: '#614343',
+  color2: '#fcd213',
+  color3: '#2c2312',
+  color4: '#d1bf94'
+ }
+
 
 // called when the gui params change and we need to update the image
 Main.controlsChangeCallback = function() {
   //Main.filterHistoryData = Gui.getFilterHistoryData();
-  Raytracer.updateColor("water_color1", (new Pixel(colors.color1).data));
-  Raytracer.updateColor("water_color2", (new Pixel(colors.color2).data));
-  Raytracer.updateColor("water_color3", (new Pixel(colors.color3).data));
-  Raytracer.updateColor("water_color4", (new Pixel(colors.color4).data));
+  Raytracer.updateColor("water_color1", (new Pixel(waterColors.color1).data));
+  Raytracer.updateColor("water_color2", (new Pixel(waterColors.color2).data));
+  Raytracer.updateColor("water_color3", (new Pixel(waterColors.color3).data));
+  Raytracer.updateColor("water_color4", (new Pixel(waterColors.color4).data));
+
+  Raytracer.updateColor("sand_color1", (new Pixel(sandColors.color1).data));
+  Raytracer.updateColor("sand_color2", (new Pixel(sandColors.color2).data));
+  Raytracer.updateColor("sand_color3", (new Pixel(sandColors.color3).data));
+  Raytracer.updateColor("sand_color4", (new Pixel(sandColors.color4).data));
   //Main.totalApplyTimeSinceFirstFilter = 0;
   //Main.applyFilters();
 };
@@ -102,10 +114,14 @@ window.onload = function() {
 
   drawScene();
 
-  Raytracer.updateColor("water_color1", (new Pixel(colors.color1).data));
-  Raytracer.updateColor("water_color2", (new Pixel(colors.color2).data));
-  Raytracer.updateColor("water_color3", (new Pixel(colors.color3).data));
-  Raytracer.updateColor("water_color4", (new Pixel(colors.color4).data));
+  Raytracer.updateColor("water_color1", (new Pixel(waterColors.color1).data));
+  Raytracer.updateColor("water_color2", (new Pixel(waterColors.color2).data));
+  Raytracer.updateColor("water_color3", (new Pixel(waterColors.color3).data));
+  Raytracer.updateColor("water_color4", (new Pixel(waterColors.color4).data));
+  Raytracer.updateColor("sand_color1", (new Pixel(sandColors.color1).data));
+  Raytracer.updateColor("sand_color2", (new Pixel(sandColors.color2).data));
+  Raytracer.updateColor("sand_color3", (new Pixel(sandColors.color3).data));
+  Raytracer.updateColor("sand_color4", (new Pixel(sandColors.color4).data));
 
   function snapShot() {
     // get the image data

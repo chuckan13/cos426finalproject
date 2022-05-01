@@ -87,19 +87,19 @@ Gui.init = function(controlsChangeCallback) {
   this.waterFolder = this.historyDatGui.addFolder("Water Color");
   this.waterFolder.open();
 
-  var watercolor1Control = this.waterFolder.addColor(colors,'color1').name('Color 1').listen();
+  var watercolor1Control = this.waterFolder.addColor(waterColors,'color1').name('Color 1').listen();
   watercolor1Control.onChange(function() {
       Gui.handleControlsChange();
   });
-  var watercolor2Control = this.waterFolder.addColor(colors,'color2').name('Color 2').listen();
+  var watercolor2Control = this.waterFolder.addColor(waterColors,'color2').name('Color 2').listen();
   watercolor2Control.onChange(function() {
       Gui.handleControlsChange();
   });
-  var watercolor3Control = this.waterFolder.addColor(colors,'color3').name('Color 3').listen();
+  var watercolor3Control = this.waterFolder.addColor(waterColors,'color3').name('Color 3').listen();
   watercolor3Control.onChange(function() {
       Gui.handleControlsChange();
   });
-  var watercolor4Control = this.waterFolder.addColor(colors,'color4').name('Color 4').listen();
+  var watercolor4Control = this.waterFolder.addColor(waterColors,'color4').name('Color 4').listen();
   watercolor4Control.onChange(function() {
       Gui.handleControlsChange();
   });
@@ -108,19 +108,19 @@ Gui.init = function(controlsChangeCallback) {
   this.sandFolder = this.historyDatGui.addFolder("Sand Color");
   this.sandFolder.open();
 
-  var sandcolor1Control = this.sandFolder.addColor(colors,'color1').name('Color 1').listen();
+  var sandcolor1Control = this.sandFolder.addColor(sandColors,'color1').name('Color 1').listen();
   sandcolor1Control.onChange(function() {
       Gui.handleControlsChange();
   });
-  var sandcolor2Control = this.sandFolder.addColor(colors,'color2').name('Color 2').listen();
+  var sandcolor2Control = this.sandFolder.addColor(sandColors,'color2').name('Color 2').listen();
   sandcolor2Control.onChange(function() {
       Gui.handleControlsChange();
   });
-  var sandcolor3Control = this.sandFolder.addColor(colors,'color3').name('Color 3').listen();
+  var sandcolor3Control = this.sandFolder.addColor(sandColors,'color3').name('Color 3').listen();
   sandcolor3Control.onChange(function() {
       Gui.handleControlsChange();
   });
-  var sandcolor4Control = this.sandFolder.addColor(colors,'color4').name('Color 4').listen();
+  var sandcolor4Control = this.sandFolder.addColor(sandColors,'color4').name('Color 4').listen();
   sandcolor4Control.onChange(function() {
       Gui.handleControlsChange();
   });
