@@ -12,6 +12,7 @@ Raytracer.LAMBERTMATERIAL = 3;
 Raytracer.NONE = 0;
 Raytracer.CHECKERBOARD = 1;
 Raytracer.MYSPECIAL = 2;
+Raytracer.MYSPECIALCOAST = 4;
 
 // reflect types - how to bounce rays
 Raytracer.NONEREFLECT = 1;

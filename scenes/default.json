@@ -1,6 +1,6 @@
 {"objects": [
         {
-            "comment": "// the back of the cornell box",
+            "comment": "// water",
             "type": "plane",
             "normal": [0, 0, 1],
             "dist": 40,
@@ -10,32 +10,44 @@
                 "color": [0.7, 0.7, 0.7],
                 "special": "MYSPECIAL"
             }
+        },
+        {
+            "comment": "// coast",
+            "type": "plane",
+            "normal": [0, 0, 1],
+            "dist": 38,
+            "material": {
+                "type": "PHONGMATERIAL",
+                "shininess": 500,
+                "color": [0.7, 0.7, 0.7],
+                "special": "MYSPECIALCOAST"
+            }
         }
     ],
 
     "lights": [
         {
-            "pos": [100, -100, -100],
+            "pos": [-20, 20, 10],
             "color": [1, 1, 1],
-            "intensity": 100,
+            "intensity": 50,
+            "attenuate": 1.5
+        },
+        {
+            "pos": [20, 20, 10],
+            "color": [1, 1, 1],
+            "intensity": 30,
+            "attenuate": 2
+        },
+        {
+            "pos": [-10, 20, -20],
+            "color": [1, 1, 1],
+            "intensity": 30,
             "attenuate": 1
         },
         {
-            "pos": [-100, -100, -100],
+            "pos": [10, 20, -20],
             "color": [1, 1, 1],
-            "intensity": 100,
-            "attenuate": 1
-        },
-        {
-            "pos": [-100, 100, -100],
-            "color": [1, 1, 1],
-            "intensity": 100,
-            "attenuate": 1
-        },
-        {
-            "pos": [100, 100, -100],
-            "color": [1, 1, 1],
-            "intensity": 100,
+            "intensity": 20,
             "attenuate": 1
         }
     ]
