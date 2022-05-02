@@ -967,10 +967,14 @@ void main() {
   float z = gl_FragCoord.y - height / 2.0;
   float coastZ = width / 5.0 - width/2.0;
 
+  float interpBand = width / 20.0;
+
   x = x / magnify[0] + offset[0];
   z = z / magnify[0];
 
-  float coastNoise1 = 150.0 * fbm((z-400.0)/200.0);
+  float time = float(frame) / 60.0;
+
+  float coastNoise1 = (150.0 + 35.0*fbm(time+z/20.0)+ 35.0*fbm(time-z/20.0)) * fbm((z-400.0)/200.0);
   float coastNoise2 = coastNoise1;
   // 75.0 * fbm(z/40.0);
 
@@ -979,14 +983,14 @@ void main() {
 
       gl_FragColor = vec4(sand_color, .1);
   }
-  else  if (x > (coastZ+50.0 + coastNoise2)){
+  else  if (x > (coastZ+ interpBand + coastNoise2)){
     vec3 water_color = getWaterColor(x,z);
 
     gl_FragColor = vec4(water_color, .1);
   }
   else{
-    float weight = (x - (coastZ+coastNoise1)) / (50.0+coastNoise2 - coastNoise1);
-    //weight *=weight;
+    float weight = (x - (coastZ+coastNoise1)) / (interpBand+coastNoise2 - coastNoise1);
+    weight *=weight;
     
     vec3 sand_color = getSandColor(x, z);
     vec3 water_color = getWaterColor(x,z);
