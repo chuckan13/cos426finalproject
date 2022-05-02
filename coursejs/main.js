@@ -66,9 +66,9 @@ var waterColors = {
  }
 
  var sandColors = {
-  color1: '#614343',
+  color1: '#000000',
   color2: '#fcd213',
-  color3: '#2c2312',
+  color3: '#edbc5f',
   color4: '#d1bf94'
  }
 

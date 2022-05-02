@@ -852,7 +852,7 @@ float fbm(vec2 x) {
 	vec2 shift = vec2(100);
 	// Rotate to reduce axial bias
     mat2 rot = mat2(cos(0.5), sin(0.5), -sin(0.5), cos(0.50));
-	for (int i = 0; i < 5; ++i) {
+	for (int i = 0; i < 2; ++i) {
 		v += a * noise(x);
 		x = rot * x * 2.0 + shift;
 		a *= 0.5;
@@ -861,8 +861,8 @@ float fbm(vec2 x) {
 }
 
 vec3 getSandColor(float x, float z){
-    x /= 10.0;
-    z /= 10.0;
+    x /= 20.0;
+    z /= 20.0;
     float time = float(frame) / 60.0;
 
     vec2 st = vec2(x, z);
@@ -906,9 +906,12 @@ vec3 getSandColor(float x, float z){
                 sand_color4,
                 clamp(length(r2.x),0.0,1.0));
 
-    v+=.2;
-
-    return (v*v*v+.2*v*v+.95*v)*color;
+    //float lowVal = 0.5;
+    //if(v<lowVal) {v+= 0.5;}
+    float w = v*v*v+.2*v*v+.95*v;
+    w *=0.25;
+    w +=0.95;
+    return w*color;
 
 }     
 vec3 getWaterColor(float x, float z){
@@ -962,7 +965,7 @@ void main() {
   float x = gl_FragCoord.x;
   float z =  gl_FragCoord.y;
 
-  float coastNoise1 = 150.0 * fbm((z+200.0)/75.0);
+  float coastNoise1 = 150.0 * fbm((z-400.0)/200.0);
   float coastNoise2 = coastNoise1;
   // 75.0 * fbm(z/40.0);
 
