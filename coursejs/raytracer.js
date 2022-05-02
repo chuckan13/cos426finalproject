@@ -48,6 +48,15 @@ Raytracer.handleZoom = function(delta, magVal) {
   Raytracer.needsToDraw = true;
 };
 
+Raytracer.handleKey = function(magVal_, offsetVal_) {
+  var magVal = [magVal_, 0.0]
+  var offsetVal = [offsetVal_, 0.0]
+
+  this.setUniform("2fv", 'offset', offsetVal)
+  this.setUniform("2fv", 'magnify', magVal)
+  Raytracer.needsToDraw = true;
+};
+
 Raytracer.handleMouseMove = function(event) {
   var newX = event.clientX;
   var newY = event.clientY;

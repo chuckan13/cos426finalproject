@@ -20,6 +20,7 @@ uniform vec3 sand_color3;
 uniform vec3 sand_color4;
 
 uniform vec2 magnify;
+uniform vec2 offset;
 // flag for using soft shadows (set to 1 only when using soft shadows)
 #define SOFT_SHADOWS 0
 
@@ -962,25 +963,29 @@ void main() {
   //vec3 res = traceRay(ray);
 
   
-  float x = gl_FragCoord.x;
-  float z =  gl_FragCoord.y;
+  float x = gl_FragCoord.x + - width / 2.0;
+  float z = gl_FragCoord.y - height / 2.0;
+  float coastZ = width / 5.0 - width/2.0;
+
+  x = x / magnify[0] + offset[0];
+  z = z / magnify[0];
 
   float coastNoise1 = 150.0 * fbm((z-400.0)/200.0);
   float coastNoise2 = coastNoise1;
   // 75.0 * fbm(z/40.0);
 
-  if (x < (300.0 + coastNoise1)){
+  if (x < (coastZ + coastNoise1)){
       vec3 sand_color = getSandColor(x, z);
 
       gl_FragColor = vec4(sand_color, .1);
   }
-  else  if (x > (350.0 + coastNoise2)){
+  else  if (x > (coastZ+50.0 + coastNoise2)){
     vec3 water_color = getWaterColor(x,z);
 
     gl_FragColor = vec4(water_color, .1);
   }
   else{
-    float weight = (x - (300.0+coastNoise1)) / (50.0+coastNoise2 - coastNoise1);
+    float weight = (x - (coastZ+coastNoise1)) / (50.0+coastNoise2 - coastNoise1);
     //weight *=weight;
     
     vec3 sand_color = getSandColor(x, z);

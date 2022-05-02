@@ -122,6 +122,10 @@ window.onload = function() {
   Raytracer.updateColor("sand_color2", (new Pixel(sandColors.color2).data));
   Raytracer.updateColor("sand_color3", (new Pixel(sandColors.color3).data));
   Raytracer.updateColor("sand_color4", (new Pixel(sandColors.color4).data));
+  Raytracer.handleKey(1.0, 0.0);
+
+  console.log(window.innerHeight);
+  console.log(window.innerWidth)
 
   function snapShot() {
     // get the image data
@@ -148,16 +152,26 @@ window.onload = function() {
     }
   });
 
-  var magVal = 100;
+  var magVal = 1.0;
+  var offsetVal = 0;
+
   window.addEventListener("keydown", function(event) {
     // only respond to 'I' key
     if (event.which == 38) {
-      magVal += 1;
-      Raytracer.handleZoom(1.0, magVal);
+      magVal -= .01;
+      Raytracer.handleKey(1/magVal, offsetVal);
       
     } else if (event.which == 40) {
-      magVal -= 1;
-      Raytracer.handleZoom(-1.0, magVal);
+      magVal += .01;
+      Raytracer.handleKey(1/magVal, offsetVal);
+    }
+    else if (event.key == 'ArrowLeft'){
+      offsetVal -=(3 *magVal);
+      Raytracer.handleKey(1/magVal, offsetVal);
+    }
+    else if (event.key == 'ArrowRight'){
+      offsetVal +=(3 * magVal);
+      Raytracer.handleKey(1/magVal, offsetVal);
     }
   });
 
