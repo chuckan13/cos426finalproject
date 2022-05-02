@@ -1,8 +1,8 @@
 var Student = {
   // please fill in your name and NetID
   // your NetID is the part of your email before @princeton.edu
-  name: "Matthew Shih",
-  netID: "mjshih",
+  name: "Matthew Shih and Charles An",
+  netID: "mjshih & ca9",
 };
 
 Student.updateHTML = function() {
