@@ -989,7 +989,7 @@ void main() {
         float time_weight = (float(frame - clickFrame) + 1.0)/ float(decayTime) ;
         float dist_weight = dist / (clickSize * clickSize);
         vec3 noise_color = getWaterColor(x,z, 2.0);
-        noise_color = vec3(0);
+        // noise_color = vec3(0);
         vec3 mix_color = mix(water_color, noise_color, 1.0 - dist_weight * time_weight);
         gl_FragColor = vec4(mix_color, .1);
     }
