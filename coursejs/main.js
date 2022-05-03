@@ -108,9 +108,7 @@ window.onload = function() {
   var paused = false;
   var debug = cmd.debug || false;
 
-  Scene.sceneName = cmd.scene || "default";
   Raytracer.init(height, width, debug);
-  Scene.setUniforms();
 
   Student.updateHTML();
 

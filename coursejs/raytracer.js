@@ -28,25 +28,6 @@ Raytracer.mouseDown = false;
 Raytracer.lastMouseX = null;
 Raytracer.lastMouseY = null;
 //
-Raytracer.camera = [0.15, -0.05, 0];
-
-Raytracer.handleMouseDown = function(event) {
-  Raytracer.mouseDown = true;
-  Raytracer.lastMouseX = event.clientX;
-  Raytracer.lastMouseY = event.clientY;
-};
-
-Raytracer.handleMouseUp = function(event) {
-  Raytracer.mouseDown = false;
-};
-
-Raytracer.handleZoom = function(delta, magVal) {
-  var magVal_ = [magVal, 0.0]
-  console.log(magVal_)
-  //mat4.translate(Raytracer.RotationMatrix, [0.0, 0.0, 0.5 * delta]);
-  this.setUniform("2fv", 'magnify', magVal_)
-  Raytracer.needsToDraw = true;
-};
 
 Raytracer.handleClick = function(x, y) {
   var clickCoord = [x, y]
@@ -62,30 +43,7 @@ Raytracer.handleKey = function(magVal_, offsetVal_) {
   Raytracer.needsToDraw = true;
 };
 
-Raytracer.handleMouseMove = function(event) {
-  var newX = event.clientX;
-  var newY = event.clientY;
-  var deltaX = newX - Raytracer.lastMouseX;
-  var deltaY = newY - Raytracer.lastMouseY;
-  var moved = deltaX != 0 || deltaY != 0;
 
-  if (!Raytracer.mouseDown || !moved) {
-    return;
-  }
-
-  var degToRad = function(degrees) {
-    return (degrees * Math.PI) / 180;
-  };
-  var newRotationMatrix = mat4.create();
-  mat4.identity(newRotationMatrix);
-  mat4.rotate(newRotationMatrix, degToRad(deltaX / 10), [0, 1, 0]);
-  mat4.rotate(newRotationMatrix, degToRad(deltaY / 10), [1, 0, 0]);
-  mat4.multiply(newRotationMatrix, Raytracer.RotationMatrix, Raytracer.RotationMatrix);
-
-  Raytracer.lastMouseX = newX;
-  Raytracer.lastMouseY = newY;
-  Raytracer.needsToDraw = true;
-};
 
 Raytracer.initShader = function(program, shaderType, src, debug) {
   var shader = this.gl.createShader(shaderType);
@@ -120,10 +78,9 @@ Raytracer.init = function(height, width, debug) {
   this.gl.clearColor(0.0, 0.0, 0.0, 1.0);
   this.gl.clear(this.gl.COLOR_BUFFER_BIT);
 
-  var fSrcBase = Parser.parseTxt("shaders/fragmentShader.frag");
+  var fSrc = Parser.parseTxt("shaders/fragmentShader.frag");
   var vSrc = Parser.parseTxt("shaders/vertexShader.vert");
-  var fSrc = fSrcBase + Scene.getIntersectFunction();
-
+  
   this.program = this.gl.createProgram();
 
   var compileStartTime = performance.now();
@@ -175,24 +132,6 @@ Raytracer.init = function(height, width, debug) {
   document.onmousemove = Raytracer.handleMouseMove;
 };
 
-Raytracer.setCamera = function(cameraAngle) {
-  //rotation matrix
-  var newRotationMatrix = mat4.create();
-  mat4.identity(newRotationMatrix);
-  mat4.rotate(newRotationMatrix, cameraAngle[0] * Math.PI, [1, 0, 0]);
-  mat4.rotate(newRotationMatrix, cameraAngle[1] * Math.PI, [0, 1, 0]);
-  mat4.rotate(newRotationMatrix, cameraAngle[2] * Math.PI, [0, 0, 1]);
-  console.log(cameraAngle);
-  mat4.multiply(newRotationMatrix, Raytracer.RotationMatrix, Raytracer.RotationMatrix);
-};
-Raytracer.addLight = function(px, py, pz, cr, cg, cb, intensity, attenuate) {
-  var lightID = "lights[" + this.lightID + "].";
-  this.setUniform("3f", lightID + "position", px, py, pz);
-  this.setUniform("3f", lightID + "color", cr, cg, cb);
-  this.setUniform("1f", lightID + "intensity", intensity);
-  this.setUniform("1f", lightID + "attenuate", attenuate);
-  this.lightID++;
-};
 
 Raytracer.setUniform = function(varType, varName, v0, v1, v2) {
   var unifName = "uniform" + varType;

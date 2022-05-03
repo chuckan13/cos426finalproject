@@ -135,8 +135,5 @@ Gui.init = function(controlsChangeCallback) {
     Gui.handleControlsChange();
   });
 
-
-
-
   this.fullyInitialized = true;
 };
