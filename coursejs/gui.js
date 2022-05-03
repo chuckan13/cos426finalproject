@@ -76,12 +76,7 @@ Gui.init = function(controlsChangeCallback) {
     var filterButton = filterFolder.add(this.applyFuncs, filterDef.name);
   }
 
-  
-  var defaultOnChangeFunc = function() {
-    return function() {
-      Gui.handleControlsChange();
-    }
-  }
+
 
   // CONSTRUCT THE HISTORY PANE
   this.waterFolder = this.historyDatGui.addFolder("Water Color");
@@ -125,14 +120,18 @@ Gui.init = function(controlsChangeCallback) {
       Gui.handleControlsChange();
   });
 
+  this.sceneParamsFolder = this.historyDatGui.addFolder("Scene Parameters");
+  this.sceneParamsFolder.open();
+
+
+  var sceneParams1 = this.sceneParamsFolder.add(sceneParams, 'wind', 0, 20)
+  sceneParams1.name('Wind Intensity');
+  sceneParams1.onChange(function() {
+    Gui.handleControlsChange();
+  });
 
 
 
-  /* 
-  if (GuiConfig.onInit) {
-    GuiConfig.onInit(this);
-  }
-  */
 
   this.fullyInitialized = true;
 };

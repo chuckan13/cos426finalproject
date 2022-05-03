@@ -25,6 +25,8 @@ uniform vec2 offset;
 uniform vec2 clickCoord;
 uniform int clickFrame;
 
+uniform float wind;
+
 // flag for using soft shadows (set to 1 only when using soft shadows)
 #define SOFT_SHADOWS 0
 
@@ -911,7 +913,7 @@ vec3 getSandColor(float x, float z){
     return w*color;
 
 }     
-vec3 getWaterColor(float x, float z, float mult){
+vec3 getWaterColor(float x, float z, float mult, float whiteWeight){
     x /= 20.0;
     z /= 20.0;
 
@@ -924,8 +926,8 @@ vec3 getWaterColor(float x, float z, float mult){
     q.y = fbm(st+vec2(1.0));
 
     vec2 r = vec2(0);
-    r.x = fbm(st + 1.0*q + vec2(1.7,9.2) + 0.15 * mult *time);
-    r.y = fbm(st + 1.0*q + vec2(8.3,2.8) + 0.126 * mult * time);
+    r.x = fbm(st + 1.0*q + vec2(1.7,9.2) + 0.15 * mult *time * wind / 2.0);
+    r.y = fbm(st + 1.0*q + vec2(8.3,2.8) + 0.126 * mult * time * wind / 2.0);
 
     float v = fbm(st+7.0*r);
 
@@ -943,6 +945,10 @@ vec3 getWaterColor(float x, float z, float mult){
                 vec3(water_color4),
                 clamp(length(r.x),0.0,1.0));
 
+    color = mix(vec3(1),
+            color,
+            whiteWeight*whiteWeight);
+
     return (v*v*v+.6*v*v+.5*v)*color;
 
 }
@@ -958,19 +964,18 @@ void main() {
   // trace the ray for this pixel
   //vec3 res = traceRay(ray);
 
-  
   float x = gl_FragCoord.x + - width / 2.0;
   float z = gl_FragCoord.y - height / 2.0;
-  float coastZ = width / 5.0 - width/2.0;
+  float coastZ = width / 5.5 - width/2.0;
 
-  float interpBand = width / 30.0;
+  float interpBand = width / 25.0;
 
   x = x / magnify[0] + offset[0];
   z = z / magnify[0];
 
   float time = float(frame) / 60.0;
 
-  float coastNoise1 = (150.0 + 75.0*fbm(time / 3.0 +z/100.0)+75.0*fbm(time / 3.0-z/100.0)) * fbm((z-400.0)/200.0);
+  float coastNoise1 = (150.0 + 75.0*fbm(time / 3.0 * wind / 10.0 +z/100.0)+75.0*fbm(time / 3.0 * wind / 10.0-z/100.0)) * fbm((z-400.0)/200.0);
   float coastNoise2 = coastNoise1;
   // 75.0 * fbm(z/40.0);
 
@@ -979,18 +984,19 @@ void main() {
       gl_FragColor = vec4(sand_color, .1);
   }
   else  if (x > (coastZ+ interpBand + coastNoise2)){
-    vec3 water_color = getWaterColor(x,z, 1.0);
+    vec3 water_color = getWaterColor(x,z, 1.0, 1.0);
     float clickSize = 60.0;
     int decayTime = 50;
     float xDist = (gl_FragCoord.x - clickCoord[0]);
     float yDist = ((height - gl_FragCoord.y) - clickCoord[1]);
     float dist = xDist * xDist + yDist * yDist;
-    if (dist < clickSize * clickSize && frame - clickFrame < decayTime + 2){
-        float time_weight = (float(frame - clickFrame) + 1.0)/ float(decayTime) ;
-        float dist_weight = dist / (clickSize * clickSize);
-        vec3 noise_color = getWaterColor(x,z, 2.0);
-        // noise_color = vec3(0);
-        vec3 mix_color = mix(water_color, noise_color, 1.0 - dist_weight * time_weight);
+    if (dist < clickSize * clickSize && frame - clickFrame < decayTime + 30 ){
+        float time_weight = float(frame - clickFrame)/ (float(decayTime)* 0.6) ;
+        float dist_weight = (dist) / (clickSize * clickSize *0.9);
+        if (dist_weight <= 0.25) {dist_weight = 0.25;}
+        vec3 noise_color = getWaterColor(x,z, 4.0, 1.0);
+        //noise_color = vec3(0);
+        vec3 mix_color = mix(water_color, noise_color, clamp(1.0 - dist_weight * time_weight, 0.0, 1.0));
         gl_FragColor = vec4(mix_color, .1);
     }
     else{ gl_FragColor = vec4(water_color, .1); }
@@ -1001,7 +1007,7 @@ void main() {
     //weight *=weight;
     
     vec3 sand_color = getSandColor(x, z);
-    vec3 water_color = getWaterColor(x,z, 1.0);
+    vec3 water_color = getWaterColor(x,z, 1.0, weight);
 
     vec3 mix_color = vec3(0);
     mix_color = mix(sand_color, water_color, weight);

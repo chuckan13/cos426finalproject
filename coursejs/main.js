@@ -72,6 +72,9 @@ var waterColors = {
   color4: '#d1bf94'
  }
 
+ var sceneParams = {
+   wind: 10
+ }
 
 // called when the gui params change and we need to update the image
 Main.controlsChangeCallback = function() {
@@ -85,6 +88,9 @@ Main.controlsChangeCallback = function() {
   Raytracer.updateColor("sand_color2", (new Pixel(sandColors.color2).data));
   Raytracer.updateColor("sand_color3", (new Pixel(sandColors.color3).data));
   Raytracer.updateColor("sand_color4", (new Pixel(sandColors.color4).data));
+
+  Raytracer.setUniform('1f', 'wind', sceneParams.wind);
+
   //Main.totalApplyTimeSinceFirstFilter = 0;
   //Main.applyFilters();
 };
@@ -123,6 +129,8 @@ window.onload = function() {
   Raytracer.updateColor("sand_color3", (new Pixel(sandColors.color3).data));
   Raytracer.updateColor("sand_color4", (new Pixel(sandColors.color4).data));
   Raytracer.handleKey(1.0, 0.0);
+  Raytracer.setUniform('1f', 'wind', sceneParams.wind);
+
 
   function snapShot() {
     // get the image data
