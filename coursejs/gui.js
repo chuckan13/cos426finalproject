@@ -129,6 +129,11 @@ Gui.init = function(controlsChangeCallback) {
   sceneParams1.onChange(function() {
     Gui.handleControlsChange();
   });
+  var sceneParams2 = this.sceneParamsFolder.add(sceneParams, 'jagged', 0, 20)
+  sceneParams2.name('Coastline Jaggedness');
+  sceneParams2.onChange(function() {
+    Gui.handleControlsChange();
+  });
 
 
 

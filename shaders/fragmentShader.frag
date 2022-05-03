@@ -26,6 +26,7 @@ uniform vec2 clickCoord;
 uniform int clickFrame;
 
 uniform float wind;
+uniform float jagged;
 
 // flag for using soft shadows (set to 1 only when using soft shadows)
 #define SOFT_SHADOWS 0
@@ -927,7 +928,7 @@ vec3 getWaterColor(float x, float z, float mult, float whiteWeight){
 
     vec2 r = vec2(0);
     r.x = fbm(st + 1.0*q + vec2(1.7,9.2) + 0.15 * mult *time * wind / 2.0);
-    r.y = fbm(st + 1.0*q + vec2(8.3,2.8) + 0.126 * mult * time * wind / 2.0);
+    r.y = fbm(st + 1.0*q + vec2(8.3,2.8) + 0.096 * mult * time * wind / 2.0);
 
     float v = fbm(st+7.0*r);
 
@@ -966,7 +967,7 @@ void main() {
 
   float x = gl_FragCoord.x + - width / 2.0;
   float z = gl_FragCoord.y - height / 2.0;
-  float coastZ = width / 5.5 - width/2.0;
+  float coastZ = width / 7.5 - width/2.0;
 
   float interpBand = width / 25.0;
 
@@ -975,7 +976,7 @@ void main() {
 
   float time = float(frame) / 60.0;
 
-  float coastNoise1 = (150.0 + 75.0*fbm(time / 3.0 * wind / 10.0 +z/100.0)+75.0*fbm(time / 3.0 * wind / 10.0-z/100.0)) * fbm((z-400.0)/200.0);
+  float coastNoise1 = (150.0 + 7.5*jagged*fbm(time / 3.0 * wind / 8.0 +z/100.0)+7.5* jagged*fbm(time / 3.0 * wind / 8.0-z/100.0)) * fbm((z-400.0)/200.0);
   float coastNoise2 = coastNoise1;
   // 75.0 * fbm(z/40.0);
 
