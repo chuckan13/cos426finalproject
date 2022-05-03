@@ -911,7 +911,7 @@ vec3 getSandColor(float x, float z){
     return w*color;
 
 }     
-vec3 getWaterColor(float x, float z){
+vec3 getWaterColor(float x, float z, float mult){
     x /= 20.0;
     z /= 20.0;
 
@@ -920,12 +920,12 @@ vec3 getWaterColor(float x, float z){
     vec2 st = vec2(x, z);
 
     vec2 q = vec2(0);
-    q.x = fbm(st + 1.464*time); // change constant in front of time for waves
+    q.x = fbm(st + 1.464* mult * time); // change constant in front of time for waves
     q.y = fbm(st+vec2(1.0));
 
     vec2 r = vec2(0);
-    r.x = fbm(st + 1.0*q + vec2(1.7,9.2) + 0.15 *time);
-    r.y = fbm(st + 1.0*q + vec2(8.3,2.8) + 0.126 * time);
+    r.x = fbm(st + 1.0*q + vec2(1.7,9.2) + 0.15 * mult *time);
+    r.y = fbm(st + 1.0*q + vec2(8.3,2.8) + 0.126 * mult * time);
 
     float v = fbm(st+7.0*r);
 
@@ -979,17 +979,18 @@ void main() {
       gl_FragColor = vec4(sand_color, .1);
   }
   else  if (x > (coastZ+ interpBand + coastNoise2)){
-    vec3 water_color = getWaterColor(x,z);
-    float clickSize = 25.0;
-    int decayTime = 30;
+    vec3 water_color = getWaterColor(x,z, 1.0);
+    float clickSize = 60.0;
+    int decayTime = 50;
     float xDist = (gl_FragCoord.x - clickCoord[0]);
     float yDist = ((height - gl_FragCoord.y) - clickCoord[1]);
-
-    if (xDist* xDist + yDist * yDist < clickSize * clickSize && frame < clickFrame + decayTime){
-        float weight = float(frame - clickFrame) / float(decayTime) ;
-        vec3 noise_color = vec3(1.0, 1.0, 1.0);
-
-        vec3 mix_color = mix(noise_color, water_color, weight);
+    float dist = xDist * xDist + yDist * yDist;
+    if (dist < clickSize * clickSize && frame - clickFrame < decayTime + 2){
+        float time_weight = (float(frame - clickFrame) + 1.0)/ float(decayTime) ;
+        float dist_weight = dist / (clickSize * clickSize);
+        vec3 noise_color = getWaterColor(x,z, 2.0);
+        noise_color = vec3(0);
+        vec3 mix_color = mix(water_color, noise_color, 1.0 - dist_weight * time_weight);
         gl_FragColor = vec4(mix_color, .1);
     }
     else{ gl_FragColor = vec4(water_color, .1); }
@@ -1000,7 +1001,7 @@ void main() {
     //weight *=weight;
     
     vec3 sand_color = getSandColor(x, z);
-    vec3 water_color = getWaterColor(x,z);
+    vec3 water_color = getWaterColor(x,z, 1.0);
 
     vec3 mix_color = vec3(0);
     mix_color = mix(sand_color, water_color, weight);
