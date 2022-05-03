@@ -1,32 +1,8 @@
 var Raytracer = Raytracer || {};
-// ID
-Raytracer.objectID = 0;
-Raytracer.lightID = 0;
-
-// material types - how to light the surface
-Raytracer.BASICMATERIAL = 1;
-Raytracer.PHONGMATERIAL = 2;
-Raytracer.LAMBERTMATERIAL = 3;
-
-// special materials
-Raytracer.NONE = 0;
-Raytracer.CHECKERBOARD = 1;
-Raytracer.MYSPECIAL = 2;
-Raytracer.MYSPECIALCOAST = 4;
-
-// reflect types - how to bounce rays
-Raytracer.NONEREFLECT = 1;
-Raytracer.MIRRORREFLECT = 2;
-Raytracer.GLASSREFLECT = 3;
-
-Raytracer.curMaterial = {};
 
 // for animation
 Raytracer.frame = 0;
 Raytracer.needsToDraw = true;
-Raytracer.mouseDown = false;
-Raytracer.lastMouseX = null;
-Raytracer.lastMouseY = null;
 //
 
 Raytracer.handleClick = function(x, y) {
@@ -42,8 +18,6 @@ Raytracer.handleKey = function(magVal_, offsetVal_) {
   this.setUniform("2fv", 'magnify', magVal)
   Raytracer.needsToDraw = true;
 };
-
-
 
 Raytracer.initShader = function(program, shaderType, src, debug) {
   var shader = this.gl.createShader(shaderType);
@@ -153,10 +127,6 @@ Raytracer.render = function(animated) {
   if (animated) {
     this.setUniform("1i", "frame", this.frame);
   }
-  //rotation matrix
-
-  this.setUniform("Matrix4fv", "uMVMatrix", false, this.RotationMatrix);
-
   if (this.needsToDraw || animated) {
     this.gl.drawArrays(this.gl.TRIANGLES, 0, 6);
     this.needsToDraw = false;

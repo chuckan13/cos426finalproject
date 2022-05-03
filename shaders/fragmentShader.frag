@@ -8,7 +8,6 @@ precision mediump int;
 uniform float u_time;       // Time in seconds since load
 uniform vec2 u_resolution;
 
-
 uniform vec3 water_color1;
 uniform vec3 water_color2;
 uniform vec3 water_color3;
@@ -28,83 +27,6 @@ uniform int clickFrame;
 uniform float wind;
 uniform float jagged;
 
-// flag for using soft shadows (set to 1 only when using soft shadows)
-#define SOFT_SHADOWS 0
-
-// define number of soft shadow samples to take
-#define SOFT_SAMPLING 3
-
-// define constant parameters
-// EPS is for the precision issue
-#define INFINITY 1.0e+12
-#define EPS 1.0e-3
-
-// define maximum recursion depth for rays
-#define MAX_RECURSION 8
-
-// define constants for scene setting
-#define MAX_LIGHTS 10
-
-// define texture types
-#define NONE 0
-#define CHECKERBOARD 1
-#define MYSPECIAL 2
-#define MYSPECIALCOAST 4
-#define FBM 3
-
-// define material types
-#define BASICMATERIAL 1
-#define PHONGMATERIAL 2
-#define LAMBERTMATERIAL 3
-
-// define reflect types - how to bounce rays
-#define NONEREFLECT 1
-#define MIRRORREFLECT 2
-#define GLASSREFLECT 3
-
-struct Shape {
-  int shapeType;
-  vec3 v1;
-  vec3 v2;
-  float rad;
-};
-
-struct Material {
-  int materialType;
-  vec3 color;
-  float shininess;
-  vec3 specular;
-
-  int materialReflectType;
-  float reflectivity;
-  float refractionRatio;
-  int special;
-};
-
-struct Object {
-  Shape shape;
-  Material material;
-};
-
-struct Light {
-  vec3 position;
-  vec3 color;
-  float intensity;
-  float attenuate;
-};
-
-struct Ray {
-  vec3 origin;
-  vec3 direction;
-};
-
-struct Intersection {
-  vec3 position;
-  vec3 normal;
-};
-
-// uniform
-uniform mat4 uMVMatrix;
 uniform int frame;
 uniform float height;
 uniform float width;
@@ -120,7 +42,6 @@ float noise(float x) {
     float u = f * f * (3.0 - 2.0 * f);
     return mix(hash(i), hash(i + 1.0), u);
 }
-
 
 float noise(vec2 x) {
     vec2 i = floor(x);
@@ -179,18 +100,10 @@ vec3 getSandColor(float x, float z){
     vec2 r1 = vec2(0.);
     r1.x = fbm( st + 10.0*r + vec2(1.7,9.2) + 0.0015 *time);
     r1.y = fbm( st + 15.0*r + vec2(8.3,2.8) + 0.015 *time);
-    
-    //r1.x = fbm( st + 10.0*r + vec2(1.7,9.2));
-    //r1.y = fbm( st + 15.0*r + vec2(8.3,2.8));
 
     vec2 r2 = vec2(0.);
     r2.x = fbm( st + 20.0*r1 + vec2(1.7,9.2) + 0.15 *time);
     r2.y = fbm( st + 25.0*r1 + vec2(8.3,2.8) + 0.15 *time);
-    //r2.x = fbm( st + 20.0*r1 + vec2(1.7,9.2) );
-    //r2.y = fbm( st + 25.0*r1 + vec2(8.3,2.8) );
-
-
-
 
     float v = fbm(st+4.0*r2);
 
@@ -207,14 +120,13 @@ vec3 getSandColor(float x, float z){
                 sand_color4,
                 clamp(length(r2.x),0.0,1.0));
 
-    //float lowVal = 0.5;
-    //if(v<lowVal) {v+= 0.5;}
     float w = v*v*v+.2*v*v+.95*v;
     w *=0.25;
     w +=0.95;
     return w*color;
+}   
 
-}     
+
 vec3 getWaterColor(float x, float z, float mult, float whiteWeight){
     x /= 20.0;
     z /= 20.0;
@@ -256,16 +168,6 @@ vec3 getWaterColor(float x, float z, float mult, float whiteWeight){
 }
 
 void main() {
-  //float cameraFOV = 0.8;
-  //vec3 direction = vec3(v_position.x * cameraFOV * width / height, v_position.y * cameraFOV, 1.0);
-
-  //Ray ray;
-  //ray.origin = vec3(uMVMatrix * vec4(camera, 1.0));
-  //ray.direction = normalize(vec3(uMVMatrix * vec4(direction, 0.0)));
-
-  // trace the ray for this pixel
-  //vec3 res = traceRay(ray);
-
   float x = gl_FragCoord.x + - width / 2.0;
   float z = gl_FragCoord.y - height / 2.0;
   float coastZ = width / 7.5 - width/2.0;
@@ -279,7 +181,6 @@ void main() {
 
   float coastNoise1 = (150.0 + 7.5*jagged*fbm(time / 3.0 * wind / 8.0 +z/100.0)+7.5* jagged*fbm(time / 3.0 * wind / 8.0-z/100.0)) * fbm((z-400.0)/200.0);
   float coastNoise2 = coastNoise1;
-  // 75.0 * fbm(z/40.0);
 
   if (x < (coastZ + coastNoise1)){
       vec3 sand_color = getSandColor(x, z);
@@ -305,9 +206,7 @@ void main() {
 
   }
   else{
-    float weight = (x - (coastZ+coastNoise1)) / (interpBand+coastNoise2 - coastNoise1);
-    //weight *=weight;
-    
+    float weight = (x - (coastZ+coastNoise1)) / (interpBand+coastNoise2 - coastNoise1);    
     vec3 sand_color = getSandColor(x, z);
     vec3 water_color = getWaterColor(x,z, 1.0, weight);
 
