@@ -21,6 +21,10 @@ uniform vec3 sand_color4;
 
 uniform vec2 magnify;
 uniform vec2 offset;
+
+uniform vec2 clickCoord;
+uniform int clickFrame;
+
 // flag for using soft shadows (set to 1 only when using soft shadows)
 #define SOFT_SHADOWS 0
 
@@ -967,30 +971,41 @@ void main() {
   float z = gl_FragCoord.y - height / 2.0;
   float coastZ = width / 5.0 - width/2.0;
 
-  float interpBand = width / 20.0;
+  float interpBand = width / 30.0;
 
   x = x / magnify[0] + offset[0];
   z = z / magnify[0];
 
   float time = float(frame) / 60.0;
 
-  float coastNoise1 = (150.0 + 35.0*fbm(time+z/20.0)+ 35.0*fbm(time-z/20.0)) * fbm((z-400.0)/200.0);
+  float coastNoise1 = (150.0 + 75.0*fbm(time / 3.0 +z/100.0)+75.0*fbm(time / 3.0-z/100.0)) * fbm((z-400.0)/200.0);
   float coastNoise2 = coastNoise1;
   // 75.0 * fbm(z/40.0);
 
   if (x < (coastZ + coastNoise1)){
       vec3 sand_color = getSandColor(x, z);
-
       gl_FragColor = vec4(sand_color, .1);
   }
   else  if (x > (coastZ+ interpBand + coastNoise2)){
     vec3 water_color = getWaterColor(x,z);
+    float clickSize = 25.0;
+    int decayTime = 30;
+    float xDist = (gl_FragCoord.x - clickCoord[0]);
+    float yDist = ((height - gl_FragCoord.y) - clickCoord[1]);
 
-    gl_FragColor = vec4(water_color, .1);
+    if (xDist* xDist + yDist * yDist < clickSize * clickSize && frame < clickFrame + decayTime){
+        float weight = float(frame - clickFrame) / float(decayTime) ;
+        vec3 noise_color = vec3(1.0, 1.0, 1.0);
+
+        vec3 mix_color = mix(noise_color, water_color, weight);
+        gl_FragColor = vec4(mix_color, .1);
+    }
+    else{ gl_FragColor = vec4(water_color, .1); }
+
   }
   else{
     float weight = (x - (coastZ+coastNoise1)) / (interpBand+coastNoise2 - coastNoise1);
-    weight *=weight;
+    //weight *=weight;
     
     vec3 sand_color = getSandColor(x, z);
     vec3 water_color = getWaterColor(x,z);
@@ -998,6 +1013,5 @@ void main() {
     vec3 mix_color = vec3(0);
     mix_color = mix(sand_color, water_color, weight);
     gl_FragColor = vec4(mix_color, .1);
-
   }
 }

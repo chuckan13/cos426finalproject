@@ -124,9 +124,6 @@ window.onload = function() {
   Raytracer.updateColor("sand_color4", (new Pixel(sandColors.color4).data));
   Raytracer.handleKey(1.0, 0.0);
 
-  console.log(window.innerHeight);
-  console.log(window.innerWidth)
-
   function snapShot() {
     // get the image data
     try {
@@ -174,6 +171,10 @@ window.onload = function() {
       Raytracer.handleKey(1/magVal, offsetVal);
     }
   });
+
+  window.addEventListener('click', function(event){
+      Raytracer.handleClick(event.clientX, event.clientY);
+  })
 
   Gui.init(Main.controlsChangeCallback);
 };
